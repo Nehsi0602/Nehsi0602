@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+		"storage": {
+			"type": "object"
+		},    
+        "SASToken": {
+            "type": "string"
+        }
+    },
+  "variables": {
+    "templateLocation": "https://specarmdeploymentprod.blob.core.windows.net/templates/v2/",
+    "apiVersion": "2016-09-01",
+    "namePrefix": "[resourceGroup().tags.NamingPrefix]",
+	"storageAccount": "[toLower(concat(variables('namePrefix'), 'sa'))]"
+  },
+  "resources": [
+   
+    // storage account
+		{
+			"type": "Microsoft.Resources/deployments",
+			"name": "[concat(deployment().name, '_', variables('storageAccount'))]",
+			"apiVersion": "[variables('apiVersion')]",
+			"dependsOn": [ ],
+			"properties": {
+				"templateLink": { "uri": "[concat(variables('templateLocation'), 'storage-account.json', parameters('SASToken'))]" },
+				"parameters": {
+					"name": { "value": "[parameters('storage').name] },
+					"sku": { "value": "[parameters('storage').sku]" }
+				},
+				"mode": "incremental"
+			}
+		}
+  ]
+ } 
